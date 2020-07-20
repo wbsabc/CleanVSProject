@@ -44,7 +44,7 @@ def judge_path(path):
                 shutil.rmtree(os.path.join(path, f))
             print('Delete {0}'.format(os.path.join(path, f)))
             continue
-        if proj_level and DELETE_USER and f.lower().endswith('.user') and not is_dir:
+        if (sln_level or proj_level) and DELETE_USER and f.lower().endswith('.user') and not is_dir:
             if DELETE_FLAG:
                 os.remove(os.path.join(path, f))
             print('Delete {0}'.format(os.path.join(path, f)))
