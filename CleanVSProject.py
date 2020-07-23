@@ -9,6 +9,34 @@ DELETE_BIN = True
 DELETE_OBJ = True
 DELETE_USER = True
 
+error_log = ''
+
+def remove_file(path):
+    global error_log
+    try:
+        if DELETE_FLAG:
+            os.remove(path)
+        print('Delete {0}'.format(path))
+    except Exception as e:
+        print(str(e))
+        error_log = error_log + path + "\n"
+
+def remove_dir(path):
+    global error_log
+    try:
+        if DELETE_FLAG:
+            shutil.rmtree(path)
+        print('Delete {0}'.format(path))
+    except Exception as e:
+        print(str(e))
+        error_log = error_log + path + "\n"
+
+def output_log():
+    global error_log
+    if error_log != '':
+        print("\n\nFailed Path:\n")
+        print(error_log)
+
 def judge_path(path):
     files = os.listdir(path)
     sln_level = False
@@ -28,41 +56,33 @@ def judge_path(path):
         if os.path.isdir(os.path.join(path, f)):
             is_dir = True
         if sln_level and DELETE_VS and f.lower() == '.vs' and is_dir:
-            if DELETE_FLAG:
-                shutil.rmtree(os.path.join(path, f))
-            print('Delete {0}'.format(os.path.join(path, f)))
+            remove_dir(os.path.join(path, f))
             continue
         if sln_level and DELETE_SUO and f.lower().endswith('.suo') and not is_dir:
-            if DELETE_FLAG:
-                os.remove(os.path.join(path, f))
-            print('Delete {0}'.format(os.path.join(path, f)))
+            remove_file(os.path.join(path, f))
             continue
         if proj_level and DELETE_BIN and f.lower() == 'bin' and is_dir:
-            if DELETE_FLAG:
-                shutil.rmtree(os.path.join(path, f))
-            print('Delete {0}'.format(os.path.join(path, f)))
+            remove_dir(os.path.join(path, f))
             continue
         if proj_level and DELETE_OBJ and f.lower() == 'obj' and is_dir:
-            if DELETE_FLAG:
-                shutil.rmtree(os.path.join(path, f))
-            print('Delete {0}'.format(os.path.join(path, f)))
+            remove_dir(os.path.join(path, f))
             continue
         if (sln_level or proj_level) and DELETE_USER and f.lower().endswith('.user') and not is_dir:
-            if DELETE_FLAG:
-                os.remove(os.path.join(path, f))
-            print('Delete {0}'.format(os.path.join(path, f)))
+            remove_file(os.path.join(path, f))
             continue
         if setup_level and DELETE_BIN and (f.lower() == 'debug' or f.lower() == 'release') and is_dir:
-            if DELETE_FLAG:
-                shutil.rmtree(os.path.join(path, f))
-            print('Delete {0}'.format(os.path.join(path, f)))
+            remove_dir(os.path.join(path, f))
             continue
         if is_dir:
             judge_path(os.path.join(path, f))
-        
-print('Working Path: {0}'.format(sys.argv[1]))
+
+working_path = sys.argv[1]
+if working_path.endswith('"'):
+    working_path = working_path.replace('"', '\\')
+print('Working Path: {0}\n'.format(working_path))
 try:
-    judge_path(sys.argv[1])
+    judge_path(working_path)
+    output_log()
 except Exception as e:
     print(str(e))
 
