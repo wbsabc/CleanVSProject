@@ -13,12 +13,15 @@ def judge_path(path):
     files = os.listdir(path)
     sln_level = False
     proj_level = False
+    setup_level = False
 
     for f in files:
         if f.endswith('.sln'):
             sln_level = True
         if f.endswith('.csproj'):
             proj_level = True
+        if f.endswith('.vddproj'):
+            setup_level = True
     
     for f in files:
         is_dir = False
@@ -49,9 +52,18 @@ def judge_path(path):
                 os.remove(os.path.join(path, f))
             print('Delete {0}'.format(os.path.join(path, f)))
             continue
+        if setup_level and DELETE_BIN and (f.lower() == 'debug' or f.lower() == 'release') and is_dir:
+            if DELETE_FLAG:
+                shutil.rmtree(os.path.join(path, f))
+            print('Delete {0}'.format(os.path.join(path, f)))
+            continue
         if is_dir:
             judge_path(os.path.join(path, f))
         
 print('Working Path: {0}'.format(sys.argv[1]))
-judge_path(sys.argv[1])
+try:
+    judge_path(sys.argv[1])
+except Exception as e:
+    print(str(e))
+
 os.system('pause')
