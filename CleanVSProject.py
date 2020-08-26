@@ -42,14 +42,17 @@ def judge_path(path):
     sln_level = False
     proj_level = False
     setup_level = False
+    publish_level = False
 
     for f in files:
-        if f.endswith('.sln'):
+        if f.lower().endswith('.sln'):
             sln_level = True
-        if f.endswith('.csproj'):
+        if f.lower().endswith('.csproj'):
             proj_level = True
-        if f.endswith('.vddproj'):
+        if f.lower().endswith('.vddproj'):
             setup_level = True
+        if f.lower().endswith('.pubxml'):
+            publish_level = True
     
     for f in files:
         is_dir = False
@@ -67,7 +70,7 @@ def judge_path(path):
         if proj_level and DELETE_OBJ and f.lower() == 'obj' and is_dir:
             remove_dir(os.path.join(path, f))
             continue
-        if (sln_level or proj_level) and DELETE_USER and f.lower().endswith('.user') and not is_dir:
+        if (sln_level or proj_level or publish_level) and DELETE_USER and f.lower().endswith('.user') and not is_dir:
             remove_file(os.path.join(path, f))
             continue
         if setup_level and DELETE_BIN and (f.lower() == 'debug' or f.lower() == 'release') and is_dir:
